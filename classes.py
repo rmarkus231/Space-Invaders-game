@@ -1,5 +1,7 @@
-import sys
+#import sys
 import pygame as pg
+import numpy as np
+import cv2
 
 class Bullet(pg.sprite.Sprite):
     speed = 10
@@ -23,9 +25,12 @@ class Game():
         self.height = h
         p_sprite = Player((self.width/2 ,self.height))
         self.player = pg.sprite.GroupSingle(p_sprite)
+        defence = Defence((300,300))
+        self.defence_group = pg.sprite.GroupSingle(defence)
     
     
     def run(self,screen):
+        self.defence_group.sprite.shape_group.draw(screen)
         self.player.sprite.bullet_group.update()
         self.player.sprite.bullet_group.draw(screen)
         self.player.draw(screen)
@@ -73,12 +78,12 @@ class Player(pg.sprite.Sprite):
         self.charge()
 """
 class Target(pg.sprite.Sprite):
+    x = 300
+    y = 300
     def __init__(self,x,y,colour):
-        x = 300
-        y = 300
         super().__init__()
         
-        self.image = pg.image.load("../graphics/red.png").convert_alpha()
+        self.image = pg.image.load("/graphics/red.png").convert_alpha()
         self.rect = self.image.get_rect(topleft = (x,y))
         
         if color == 'red': self.value = 100
@@ -88,11 +93,39 @@ class Target(pg.sprite.Sprite):
     def update(self,direction):
         self.rect.x += direction
 """
-"""
-class Defence(pg.sprite.Sprite):
-    def __init__(self,x,y):
-        x = 0
-        y = 0
+
+class Pixel(pg.sprite.Sprite):
+    x = 0
+    y = 0
+    def __init__(self,x,y,color):
         super().__init__()
-        self.image = 
-"""
+        self.x = x
+        self.y = y
+        self.image = pg.Surface((1,1))
+        self.image.fill(color)
+        self.rect = self.image.get_rect(topleft = (x,y))
+
+class Defence(pg.sprite.Sprite):
+    shape = []
+    shape_group = None
+    def __init__(self,pos):
+        super().__init__()
+        self.img_2_shape()
+        self.shape_group = pg.sprite.Group()
+        """
+        Uses numpy array as basis to make a group of pixels
+        """
+        for row_i,val1 in enumerate(self.shape):
+            for col_i,val2 in enumerate(val1):
+                if sum(val2) != 0:
+                    #Since cv2 uses bgr and image is in rgp, swap b & r
+                    val2[0], val2[2] = val2[2], val2[0]
+                    clr = tuple(val2)
+                    print(clr)
+                    self.shape_group.add(Pixel(pos[0]+col_i,pos[1]+row_i,clr))
+        print(self.shape_group)
+        
+    def img_2_shape(self):
+        #converts image to numpy array
+        self.shape = cv2.imread('graphics/barrier.png')
+        
