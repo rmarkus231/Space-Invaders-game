@@ -73,10 +73,26 @@ class Player(pg.sprite.Sprite):
         self.charge()
 """
 class Target(pg.sprite.Sprite):
+    def __init__(self,x,y,colour):
+        x = 300
+        y = 300
+        super().__init__()
+        
+        self.image = pg.image.load("../graphics/red.png").convert_alpha()
+        self.rect = self.image.get_rect(topleft = (x,y))
+        
+        if color == 'red': self.value = 100
+        elif color == 'yellow': self.value = 200
+        else: self.value = 300
+		
+    def update(self,direction):
+        self.rect.x += direction
+"""
+"""
+class Defence(pg.sprite.Sprite):
     def __init__(self,x,y):
         x = 0
         y = 0
         super().__init__()
-        self.image = pg.image.load("./graphics/alien.png").convert_alpha()
-        self.rect = self.image.get_rect(topleft =(x,y))
+        self.image = 
 """
