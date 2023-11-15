@@ -8,12 +8,16 @@ class Bullet(pg.sprite.Sprite):
     def __init__(self,pos):
         super().__init__()
         self.image = pg.Surface((pos[0],pos[1]))
-        self.image = pg.image.load("./graphics/bullet.png").convert_alpha()
+        self.image = pg.image.load("./graphics/bullet_s.png").convert_alpha()
         self.rect = self.image.get_rect(center=pos)
+        self.rect.Rect.scale_by_ip(0.5)
+        
+        #print(type(self.rect))
+        #self.rect = pg.rect.Rect(1,1,1,1,center = pos)
     
-    def update(self):
+    def update(self,collides = False):
         self.rect.y -= self.speed
-        if self.rect.y < 0:
+        if self.rect.y < 0 or collides:
             self.kill()
 
 class Game():
@@ -31,10 +35,20 @@ class Game():
     
     def run(self,screen):
         self.defence_group.sprite.shape_group.draw(screen)
+        #self.defence_group.sprite.shape_group.update() #no update func yet
+        self.collides()
         self.player.sprite.bullet_group.update()
         self.player.sprite.bullet_group.draw(screen)
         self.player.draw(screen)
         self.player.update()
+    
+    def collides(self):
+        for b in self.player.sprite.bullet_group:
+            col = pg.sprite.spritecollide(b,self.defence_group.sprite.shape_group,True)
+            if col:
+                b.kill()
+                #col.kill()
+        
 
 class Player(pg.sprite.Sprite):
     #How many pixels it moves / frame
