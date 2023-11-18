@@ -4,13 +4,13 @@ import numpy as np
 import cv2
 
 class Bullet(pg.sprite.Sprite):
-    speed = 10
+    speed = 4
     def __init__(self,pos):
         super().__init__()
         self.image = pg.Surface((pos[0],pos[1]))
         self.image = pg.image.load("./graphics/bullet_s.png").convert_alpha()
         self.rect = self.image.get_rect(center=pos)
-        self.rect.Rect.scale_by_ip(0.5)
+        self.rect.scale_by_ip(0.4)
         
         #print(type(self.rect))
         #self.rect = pg.rect.Rect(1,1,1,1,center = pos)
@@ -29,13 +29,12 @@ class Game():
         self.height = h
         p_sprite = Player((self.width/2 ,self.height))
         self.player = pg.sprite.GroupSingle(p_sprite)
-        defence = Defence((300,300))
-        self.defence_group = pg.sprite.GroupSingle(defence)
+        self.def_group = Defense(self.width,(10,self.height-50),10,100)
     
     
     def run(self,screen):
-        self.defence_group.sprite.shape_group.draw(screen)
-        #self.defence_group.sprite.shape_group.update() #no update func yet
+        self.def_group.shape_group.draw(screen)
+        #self.Defense_group.sprite.shape_group.update() #no update func yet
         self.collides()
         self.player.sprite.bullet_group.update()
         self.player.sprite.bullet_group.draw(screen)
@@ -44,7 +43,7 @@ class Game():
     
     def collides(self):
         for b in self.player.sprite.bullet_group:
-            col = pg.sprite.spritecollide(b,self.defence_group.sprite.shape_group,True)
+            col = pg.sprite.spritecollide(b,self.def_group.shape_group,True)
             if col:
                 b.kill()
                 #col.kill()
@@ -52,7 +51,7 @@ class Game():
 
 class Player(pg.sprite.Sprite):
     #How many pixels it moves / frame
-    speed = 5
+    speed = 3
     pos = None
     ready = True
     time = 0
@@ -119,26 +118,40 @@ class Pixel(pg.sprite.Sprite):
         self.image.fill(color)
         self.rect = self.image.get_rect(topleft = (x,y))
 
-class Defence(pg.sprite.Sprite):
+class Defense(pg.sprite.Sprite):
     shape = []
     shape_group = None
-    def __init__(self,pos):
+    def __init__(self,width,pos,gaps,offset):
         super().__init__()
         self.img_2_shape()
         self.shape_group = pg.sprite.Group()
         """
         Uses numpy array as basis to make a group of pixels
         """
+        #equal distribution of defensive 
+        positions = np.linspace(
+            0+offset/2,
+            width-offset,
+            num = gaps
+            )
+        #print(positions)
+        
         for row_i,val1 in enumerate(self.shape):
             for col_i,val2 in enumerate(val1):
                 if sum(val2) != 0:
                     #Since cv2 uses bgr and image is in rgp, swap b & r
                     val2[0], val2[2] = val2[2], val2[0]
                     clr = tuple(val2)
-                    print(clr)
-                    self.shape_group.add(Pixel(pos[0]+col_i,pos[1]+row_i,clr))
-        print(self.shape_group)
-        
+                    #print(clr)
+                    for i,p in enumerate(positions):
+                        #print(p)
+                        self.shape_group.add(Pixel(
+                            pos[0]+col_i+ p,
+                            pos[1]+row_i,
+                            clr))
+                            #self.shape_group.add(Pixel(pos[0]+col_i,pos[1]+row_i,clr))
+        #print(self.shape_group)
+    
     def img_2_shape(self):
         #converts image to numpy array
         self.shape = cv2.imread('graphics/barrier.png')
