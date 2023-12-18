@@ -1,5 +1,4 @@
 import pygame as pg
-from ..world.bullet import Bullet
 
 class Player(pg.sprite.Sprite):
     #How many pixels it moves / frame
@@ -15,7 +14,6 @@ class Player(pg.sprite.Sprite):
         self.image = pg.image.load("./graphics/player.png").convert_alpha()
         self.rect = self.image.get_rect(midbottom=pos)
         self.lives = 3
-        self.bullet_group = pg.sprite.Group()
     
     def move(self):
         k = pg.key.get_pressed()
@@ -23,20 +21,13 @@ class Player(pg.sprite.Sprite):
             self.rect.x += self.speed
         if k[pg.K_LEFT] and (self.rect.x - self.speed > 0):
             self.rect.x -= self.speed
-        if k[pg.K_SPACE] and self.ready:
-            self.ready = False
-            self.time = pg.time.get_ticks()
-            self.shoot()
 
     def charge(self):
         if not self.ready:
             time = pg.time.get_ticks()
             if time -self.time > self.cooldown:
                 self.ready = True
-    
-    def shoot(self):
-        #create bullet at player current middle position
-        self.bullet_group.add(Bullet(self.rect.center,0))
+
     
     def update(self):
         self.move()
