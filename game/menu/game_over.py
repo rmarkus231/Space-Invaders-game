@@ -8,8 +8,8 @@ class Game_over(pg.sprite.Sprite):
         self.height = h
         self.currentButton = None
         self.currentI = 0
-        img = "./graphics/quit.png"
-        img2 = "./graphics/restart.png"
+        img = "./graphics/buttons/quit.png"
+        img2 = "./graphics/buttons/restart.png"
         func = lambda : pg.quit()
         func2 = lambda : print("restart")
         b = Button(self.width*1/3,self.width/2,img,func)

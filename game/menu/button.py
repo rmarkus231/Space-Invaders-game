@@ -20,4 +20,4 @@ class Button():
             screen.blit(self.imageGray, (self.rect.x, self.rect.y))
 
     def press(self):
-        self.callback()
+        return self.callback()

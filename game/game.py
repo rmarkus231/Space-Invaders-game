@@ -16,29 +16,36 @@ class Game():
     alien_cooldown = 1000 #in ms
     over = False
     startupCompleted = False
-    def __init__(self,w,h):
+    
+    def __init__(self,w,h,timer):
         self.width = w
         self.height = h
-        self.main_menu = Main_menu(self.width,self.height)
+        self.timer = timer
+        
+        #scenes
+        self.main_menu = Main_menu(self.width,self.height,self.timer)
+        self.game_over = Game_over(self.width,self.height)
+        
+        #world elements
         p_sprite = Player((self.width/2 ,self.height))
         self.player = pg.sprite.GroupSingle(p_sprite)
         self.def_group = Defense(self.width,(10,self.height-50),10,100)
         self.aliens = Aliens(self.width,self.height,7,10,5,50,alien_speed= 1)
-        #had to put the alien bullet group here because it would
-        #NOT FUCKING DRAW if it was in the aliens class, POS
+        self.bounds = Bounds(w,h)
+
+        #projectile groups
         self.alien_lasers = pg.sprite.Group()
         self.player_laser = pg.sprite.Group()
+        
         self.time = pg.time.get_ticks()
-        self.game_over = Game_over(self.width,self.height)
-        self.bounds = Bounds(w,h)
+        self.score = 0
     
     
     def run(self,screen):
-        if self.startupCompleted == False:
-            self.startupCompleted = self.main_menu.done
-            print(self.main_menu.done)
+        if self.main_menu.state in [0,2,3,4]:
             self.main_menu.draw(screen)
         elif not self.over:
+            self.get_difficulty(self.main_menu.difficulty) 
             self.alien_lasers.update()
             self.player_laser.update()
             self.aliens.update()
@@ -61,21 +68,26 @@ class Game():
         elif self.over:
             self.game_over.draw(screen)
     
-    def collides(self):
+    def collides(self): #this function returns true of game is over
+        #actually used for more than collision, just general game state checking
+        if self.aliens.current_aliens == 0:
+            return True
+        
         for b in self.player_laser:
             col = pg.sprite.spritecollide(b,self.def_group.shape_group,True)
             col2 = pg.sprite.spritecollide(b,self.aliens.aliens,True)
             if col or col2:
+                for el in col2:
+                    self.score += self.get_score(el)
                 b.kill()
         
         #check if aliens collide with any wall
         if pg.sprite.groupcollide(self.aliens.aliens,self.bounds.left_wall,False,False) or pg.sprite.groupcollide(self.aliens.aliens,self.bounds.right_wall,False,False):
-            print("colliding with a wall")
             self.aliens.alien_down()
         
         #check if an alien has touched any defenses, if so then its game over
         if pg.sprite.groupcollide(self.aliens.aliens,self.def_group.shape_group,False,False):
-            self.over = True
+            return True
                 
         for ab in self.alien_lasers:
             if pg.sprite.spritecollide(ab,self.def_group.shape_group,True):
@@ -106,3 +118,27 @@ class Game():
             self.player.sprite.ready = False
             self.player.sprite.time = pg.time.get_ticks()
             self.player_laser.add(Bullet(self.player.sprite.rect.center,0))
+    
+    def get_score(self,alien):
+        color = alien.color
+        match color:
+            case "purple":
+                return 50
+            case "yellow":
+                return 100
+            case "red":
+                return 20
+    
+    def get_difficulty(self,dif):
+        #levels are
+        #1,3,5
+        match dif:
+            case 1:
+                self.alien_cooldown = 1500
+                self.aliens.dif = 1
+            case 3:
+                self.alien_cooldown = 1000
+                self.aliens.dif = 3
+            case 5:
+                self.alien_cooldown = 500
+                self.aliens.dif = 5
