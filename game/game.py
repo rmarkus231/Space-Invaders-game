@@ -6,6 +6,7 @@ from .world.defense import Defense
 from .player.player import Player
 from .menu.game_over import Game_over
 from .menu.main_menu import Main_menu
+from .world.bounds import Bounds
 
 class Game():
     #save window w/h to class local arg
@@ -29,6 +30,7 @@ class Game():
         self.player_laser = pg.sprite.Group()
         self.time = pg.time.get_ticks()
         self.game_over = Game_over(self.width,self.height)
+        self.bounds = Bounds(w,h)
     
     
     def run(self,screen):
@@ -55,6 +57,7 @@ class Game():
             self.player_laser.draw(screen)
             self.aliens.aliens.draw(screen)
             self.alien_lasers.draw(screen)
+            self.bounds.draw(screen)
         elif self.over:
             self.game_over.draw(screen)
     
@@ -64,6 +67,11 @@ class Game():
             col2 = pg.sprite.spritecollide(b,self.aliens.aliens,True)
             if col or col2:
                 b.kill()
+        
+        #check if aliens collide with left wall
+        if pg.sprite.groupcollide(self.aliens.aliens,self.bounds.left_wall,False,False) or pg.sprite.groupcollide(self.aliens.aliens,self.bounds.right_wall,False,False):
+            print("colliding with a wall")
+            self.aliens.alien_down()
                 
         for ab in self.alien_lasers:
             col = pg.sprite.spritecollide(ab,self.def_group.shape_group,True)

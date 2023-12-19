@@ -1,5 +1,6 @@
 import pygame as pg
 import numpy as np
+import math as m
 
 class Aliens(pg.sprite.Sprite):
     aliens = None
@@ -8,6 +9,7 @@ class Aliens(pg.sprite.Sprite):
         self.width = width
         self.height = height
         self.alien_speed = alien_speed
+        self.alien_direction = 1
         self.aliens = pg.sprite.Group()
         #colors = ["purple","red","yellow"]
         
@@ -32,22 +34,19 @@ class Aliens(pg.sprite.Sprite):
                     clr = "red"
                 
                 self.aliens.add(Alien(clr,x,y))
+        self.alien_total = len(self.aliens)
     
     def update(self):
-        self.alien_checker()
-            
-    
-    def alien_checker(self):
-        for a in self.aliens:
-            if a.rect.x <= 0 or a.rect.x+self.dim >= self.width:
-                self.alien_speed *= -1
-                if self.aliens:
-                    self.alien_down()
+        current_aliens = (len(self.aliens))
+        self.alien_speed = self.alien_direction*(self.alien_total/current_aliens)
+        print("alien speed:",self.alien_speed)
         self.aliens.update(self.alien_speed)
     
     def alien_down(self):
+        self.alien_direction *= -1
         for a in self.aliens:
             a.rect.y += abs(self.alien_speed)
+        self.update()
                 
 class Alien(pg.sprite.Sprite):
     def __init__(self,color,x,y):
@@ -57,5 +56,8 @@ class Alien(pg.sprite.Sprite):
         self.image = pg.image.load(file).convert_alpha()
         self.rect = self.image.get_rect( topleft = (x,y))
     
-    def update(self,speed):
-        self.rect.x += speed
+    def update(self,speed, **kwargs):
+        if "Down" in kwargs and kwargs["Down"] == True:
+            self.rect.y += abs(speed)
+        else:
+            self.rect.x += speed
