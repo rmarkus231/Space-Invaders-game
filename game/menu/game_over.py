@@ -18,7 +18,7 @@ class Game_over(pg.sprite.Sprite):
         
     def draw(self,screen):
         k = pg.key.get_pressed()
-        print(self.currentI)
+        #print(self.currentI)
         for i,button in enumerate(self.buttons):
             self.buttons[i].draw(screen)
             button.currentButton = self.buttons[self.currentI]

@@ -8,6 +8,7 @@ class Player(pg.sprite.Sprite):
     time = 0
     cooldown = 300
     bullet_group = None
+    score = 0
     def __init__(self,pos):
         super().__init__()
         self.pos = (pos[0]*2,float(pos[1]))

@@ -17,6 +17,7 @@ class Main_menu(pg.sprite.Sprite):
         img2 = "./graphics/buttons/quit.png"
         img3 = "./graphics/buttons/source.png"
         img4 = "./graphics/buttons/difficulty.png"
+        
         """
         func1 = lambda : True
         func2 = lambda : pg.quit()

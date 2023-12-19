@@ -40,7 +40,7 @@ class Aliens(pg.sprite.Sprite):
     def update(self):
         self.current_aliens = (len(self.aliens))
         self.alien_speed = self.alien_direction*(1-round(((self.current_aliens/self.alien_total)-1)*self.dif,4))
-        print("alien speed:",self.alien_speed)
+        #print("alien speed:",self.alien_speed)
         self.aliens.update(self.alien_speed)
     
     def alien_down(self):

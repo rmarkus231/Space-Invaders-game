@@ -7,6 +7,7 @@ from .player.player import Player
 from .menu.game_over import Game_over
 from .menu.main_menu import Main_menu
 from .world.bounds import Bounds
+from .menu.UI import UI
 
 class Game():
     #save window w/h to class local arg
@@ -32,13 +33,13 @@ class Game():
         self.def_group = Defense(self.width,(10,self.height-50),10,100)
         self.aliens = Aliens(self.width,self.height,7,10,5,50,alien_speed= 1)
         self.bounds = Bounds(w,h)
+        self.UI = UI(w,h,self.player)
 
         #projectile groups
         self.alien_lasers = pg.sprite.Group()
         self.player_laser = pg.sprite.Group()
         
         self.time = pg.time.get_ticks()
-        self.score = 0
     
     
     def run(self,screen):
@@ -50,6 +51,7 @@ class Game():
             self.player_laser.update()
             self.aliens.update()
             self.player.update()
+            self.UI.update()
             
             self.over = self.collides()
             self.player_shoot()
@@ -60,6 +62,7 @@ class Game():
                 self.time = pg.time.get_ticks()
             
             self.def_group.shape_group.draw(screen)
+            self.UI.draw(screen)
             self.player.draw(screen)
             self.player_laser.draw(screen)
             self.aliens.aliens.draw(screen)
@@ -78,7 +81,7 @@ class Game():
             col2 = pg.sprite.spritecollide(b,self.aliens.aliens,True)
             if col or col2:
                 for el in col2:
-                    self.score += self.get_score(el)
+                    self.player.sprite.score += self.get_score(el)
                 b.kill()
         
         #check if aliens collide with any wall
@@ -96,6 +99,7 @@ class Game():
             if pg.sprite.spritecollide(ab,self.player,False): #needs to be false, otherwise it kills player sprite on collision
                 ab.kill()
                 self.player.sprite.lives -= 1
+                self.UI.lives -= 1
                 if self.player.sprite.lives < 0:
                     return True
         return False

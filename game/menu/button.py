@@ -21,3 +21,16 @@ class Button():
 
     def press(self):
         return self.callback()
+
+class Icon(pg.sprite.Sprite):
+    select = False
+    def __init__(self,x,y,image):
+        super().__init__()
+        self.currentButton = None
+        self.currentI = 0
+        self.img = image
+        self.image = pg.image.load(self.img).convert_alpha()
+        self.rect = self.image.get_rect( topleft=(x,y) )
+    
+    def draw(self,screen):
+        screen.blit(self.image, (self.rect.x, self.rect.y))
