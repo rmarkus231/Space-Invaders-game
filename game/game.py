@@ -68,18 +68,20 @@ class Game():
             if col or col2:
                 b.kill()
         
-        #check if aliens collide with left wall
+        #check if aliens collide with any wall
         if pg.sprite.groupcollide(self.aliens.aliens,self.bounds.left_wall,False,False) or pg.sprite.groupcollide(self.aliens.aliens,self.bounds.right_wall,False,False):
             print("colliding with a wall")
             self.aliens.alien_down()
+        
+        #check if an alien has touched any defenses, if so then its game over
+        if pg.sprite.groupcollide(self.aliens.aliens,self.def_group.shape_group,False,False):
+            self.over = True
                 
         for ab in self.alien_lasers:
-            col = pg.sprite.spritecollide(ab,self.def_group.shape_group,True)
-            if col:
+            if pg.sprite.spritecollide(ab,self.def_group.shape_group,True):
                 if ab.clr != "yellow":
                     ab.kill()
-            col = pg.sprite.spritecollide(ab,self.player,False) #needs to be false, otherwise it kills player sprite on collision
-            if col:
+            if pg.sprite.spritecollide(ab,self.player,False): #needs to be false, otherwise it kills player sprite on collision
                 ab.kill()
                 self.player.sprite.lives -= 1
                 if self.player.sprite.lives < 0:
