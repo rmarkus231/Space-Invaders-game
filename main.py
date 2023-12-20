@@ -1,7 +1,8 @@
+import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame as pg
 from game.game import Game
 from game.menu.timer import Timer
-import os
 #import time
 # pygame setup
 pg.init()
@@ -19,6 +20,8 @@ game = Game(WIDTH,HEIGHT,timer)
 if __name__=="__main__":
     #create an appdata folder for high scores if doesnt exist
     path = os.path.expandvars(r'%APPDATA%\Space-invaders-game')
+    pygame_icon = pg.image.load('graphics/player.png').convert_alpha()
+    pg.display.set_icon(pygame_icon)
     if not os.path.exists(path):
         os.makedirs(path)
     while running:
