@@ -74,7 +74,7 @@ class SpecialAlien(pg.sprite.Sprite):
         super().__init__()
         self.width = w
         self.height = h
-        self.speed = 8
+        self.speed = 1
         
         #0 = hide
         #1 = up right
@@ -82,7 +82,9 @@ class SpecialAlien(pg.sprite.Sprite):
         #3 = fly
         #4 = go down
         self.state = 0
-        
+        self.ttl = 0
+        self.hit = False
+
         file = "./graphics/ufo.png"
         self.image = pg.image.load(file).convert_alpha()
         self.rect = self.image.get_rect( topleft = (8,-43)) #spawns out of screen space
@@ -94,33 +96,38 @@ class SpecialAlien(pg.sprite.Sprite):
     
     def update(self):
         if self.state == 3:
-            print("flying")
-            self.rect.x += abs(self.speed)
+            #print("flying")
+            self.run()
             self.Hide()
         elif self.state in [1,2]:
-            print("leaving")
+            #print("leaving")
             self.goUp()
         elif self.state == 0:
-            print("hiding")
-            self.standStill()
+            #print("hiding")
+            pass
         elif self.state == 4:
-            print("coming down")
+            #print("coming down")
             self.goDown()
-        
+    
+    def run(self):
+        if self.rect.x == self.width-32 or self.rect.x == 0:
+            self.changeDirection()
+        self.rect.x += self.speed
+
     def increment(self):
         self.worth += 1
         if self.worth > (len(self.worthList)-1):
             self.worth = 0
     
+    def getScore(self):
+        return self.worthList[self.worth]
+
     def inBounds(self):
         if self.rect.x > 0 and self.rect.y > 0:
             return True
         else:
             return False
-    
-    def standStill(self):
-        pass
-    
+
     def goDown(self):
         self.rect.y += 1
         if self.rect.y == 8:
@@ -131,11 +138,20 @@ class SpecialAlien(pg.sprite.Sprite):
         if self.rect.y == -43:
             self.state = 0
     
+    def isGone(self):
+        #returns oposite actually
+        if self.state == 0:
+            return False
+        else:
+            return True
+
     def changeDirection(self):
+        #print("changed direction")
         self.speed *= -1
     
     def Hide(self):
-        if (self.ttl - pg.time.get_ticks()) < 0:
+        #print(self.ttl - pg.time.get_ticks())
+        if self.ttl - pg.time.get_ticks() < 0:
             if self.rect.x == self.retreat[0]:
                 self.state = 1
             elif self.rect.x == self.retreat[0]:

@@ -73,6 +73,8 @@ class Game():
                     self.specialAlienShoot()
                     self.sReady = False
                     self.stime = pg.time.get_ticks()
+            elif not self.special.sprite.inBounds():
+                self.specialAlienActive = self.special.sprite.isGone()
                 
             
             self.over = self.collides()
@@ -95,13 +97,14 @@ class Game():
     
     def callSpecialAlien(self):
         #self.aliens.special
-        ran = random.randint(1,100)
-        if ran == 1:
+        ran = random.randint(1,1000)
+        if ran == 1 and not self.specialAlienActive:
             print("special alien activated")
             self.special.sprite.activate()
-            ttl = random.randint(10000,250000)
+            ttl = random.randint(10000,25000)
             self.special.sprite.setTTL(ttl)
             self.specialAlienActive = True
+            self.special.sprite.hit = False
     
     def collides(self): #this function returns true of game is over
         #actually used for more than collision, just general game state checking
@@ -111,11 +114,16 @@ class Game():
         for b in self.player_laser:
             col = pg.sprite.spritecollide(b,self.def_group.shape_group,True)
             col2 = pg.sprite.spritecollide(b,self.aliens.aliens,True)
+            col3 = pg.sprite.spritecollide(b,self.special, False)
             if col or col2:
                 for el in col2:
                     self.player.sprite.score += self.get_score(el)
-                b.kill()
-        
+            if col3 and not self.special.sprite.hit:
+                self.player.sprite.score += self.special.sprite.getScore()
+                self.special.sprite.ttl = 0
+                self.special.sprite.hit = True
+            b.kill()
+
         #check if aliens collide with any wall
         if pg.sprite.groupcollide(self.aliens.aliens,self.bounds.left_wall,False,False) or pg.sprite.groupcollide(self.aliens.aliens,self.bounds.right_wall,False,False):
             self.aliens.alien_down()
@@ -126,7 +134,7 @@ class Game():
                 
         for ab in self.alien_lasers:
             if pg.sprite.spritecollide(ab,self.def_group.shape_group,True):
-                if ab.clr != "yellow":
+                if ab.clr not in ["yellow","ufo"]:
                     ab.kill()
             if pg.sprite.spritecollide(ab,self.player,False): #needs to be false, otherwise it kills player sprite on collision
                 ab.kill()
@@ -137,7 +145,8 @@ class Game():
         return False
     
     def specialAlienShoot(self):
-        playerpos = (self.player.sprite.rect.x*1/5,self.player.sprite.rect.y*1/5)
+        playerpos = [self.player.sprite.rect.x,-self.player.sprite.rect.y]
+        #print(playerpos)
         file = "./graphics/lil_bullet.png"
         self.alien_lasers.add(AdvBullet(self.special.sprite.rect.center,self.height,False,speed=playerpos, img = file))
 
@@ -162,6 +171,7 @@ class Game():
     def player_shoot(self):
         k = pg.key.get_pressed()
         if k[pg.K_SPACE] and self.player.sprite.ready:
+            self.special.sprite.increment()
             self.player.sprite.ready = False
             self.player.sprite.time = pg.time.get_ticks()
             self.player_laser.add(Bullet(self.player.sprite.rect.center,0))
