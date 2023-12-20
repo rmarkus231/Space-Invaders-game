@@ -51,6 +51,9 @@ class Aliens(pg.sprite.Sprite):
     
     def set_difficulty(self,new):
         self.dif = new
+    
+    def getAmount(self):
+        return (len(self.aliens))
                 
 class Alien(pg.sprite.Sprite):
     def __init__(self,color,x,y):

@@ -1,6 +1,7 @@
 import pygame as pg
 from game.game import Game
 from game.menu.timer import Timer
+import os
 #import time
 # pygame setup
 pg.init()
@@ -16,6 +17,10 @@ timer = Timer(50)
 game = Game(WIDTH,HEIGHT,timer)
 
 if __name__=="__main__":
+    #create an appdata folder for high scores if doesnt exist
+    path = os.path.expandvars(r'%APPDATA%\Space-invaders-game')
+    if not os.path.exists(path):
+        os.makedirs(path)
     while running:
         # poll for events
         # pygame.QUIT event means the user clicked X to close your window

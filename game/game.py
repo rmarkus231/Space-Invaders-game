@@ -23,10 +23,6 @@ class Game():
         self.height = h
         self.timer = timer
         
-        #scenes
-        self.main_menu = Main_menu(self.width,self.height,self.timer)
-        self.game_over = Game_over(self.width,self.height)
-        
         #world elements
         p_sprite = Player((self.width/2 ,self.height))
         self.player = pg.sprite.GroupSingle(p_sprite)
@@ -39,6 +35,10 @@ class Game():
         self.alien_lasers = pg.sprite.Group()
         self.player_laser = pg.sprite.Group()
         
+        #scenes
+        self.main_menu = Main_menu(self.width,self.height,self.timer)
+        self.game_over = Game_over(self.width,self.height,self.player)
+        
         self.time = pg.time.get_ticks()
     
     
@@ -46,6 +46,11 @@ class Game():
         if self.main_menu.state in [0,2,3,4]:
             self.main_menu.draw(screen)
         elif not self.over:
+            if self.aliens.getAmount() == 0:
+                #create new set of aliens for infinite gameplay
+                #gets harder every loop
+                self.aliens = Aliens(self.width,self.height,7,10,5,50,alien_speed= 1)
+                self.main_menu.difficulty += 1
             self.get_difficulty(self.main_menu.difficulty) 
             self.alien_lasers.update()
             self.player_laser.update()
@@ -127,11 +132,11 @@ class Game():
         color = alien.color
         match color:
             case "purple":
-                return 50
+                return 20*self.main_menu.difficulty
             case "yellow":
-                return 100
+                return 30*self.main_menu.difficulty
             case "red":
-                return 20
+                return 5*self.main_menu.difficulty
     
     def get_difficulty(self,dif):
         #levels are
