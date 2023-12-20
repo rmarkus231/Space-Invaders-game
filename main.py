@@ -29,13 +29,16 @@ if __name__=="__main__":
         # pygame.QUIT event means the user clicked X to close your window
         #tm = round(time.time()*1000,0)   #uses time import
         screen.fill("black")
-        game.run(screen)
+        try:
+            game.run(screen)
         
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                running = False
-        pg.display.flip()
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    running = False
+            pg.display.flip()
 
-        clock.tick(60)  # FPS limit
+            clock.tick(60)  # FPS limit
+        except:
+            running = False
 
     pg.quit()
