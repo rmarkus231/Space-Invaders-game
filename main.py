@@ -24,21 +24,22 @@ if __name__=="__main__":
     pg.display.set_icon(pygame_icon)
     if not os.path.exists(path):
         os.makedirs(path)
-    while running:
-        # poll for events
-        # pygame.QUIT event means the user clicked X to close your window
-        #tm = round(time.time()*1000,0)   #uses time import
-        screen.fill("black")
-        try:
+    try:
+        while running:
+            # poll for events
+            # pygame.QUIT event means the user clicked X to close your window
+            #tm = round(time.time()*1000,0)   #uses time import
+            screen.fill("black")
+            
             game.run(screen)
-        
+            
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     running = False
             pg.display.flip()
 
             clock.tick(60)  # FPS limit
-        except:
-            running = False
+    except:
+        running = False
 
     pg.quit()
