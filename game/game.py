@@ -29,7 +29,7 @@ class Game():
         #world elements
         p_sprite = Player((self.width/2 ,self.height))
         self.player = pg.sprite.GroupSingle(p_sprite)
-        self.def_group = Defense(self.width,(10,self.height-50),10,100)
+        self.def_group = Defense(self.width,(10,self.height-80),10,100)
         self.aliens = Aliens(self.width,self.height,7,10,5,50,alien_speed= 1)
         self.special = pg.sprite.GroupSingle(SpecialAlien(self.width,self.height))
         self.bounds = Bounds(w,h)
@@ -118,12 +118,15 @@ class Game():
             if col or col2:
                 for el in col2:
                     self.player.sprite.score += self.get_score(el)
+                b.kill()
             if col3 and not self.special.sprite.hit:
                 self.player.sprite.score += self.special.sprite.getScore()
                 self.special.sprite.ttl = 0
                 self.special.sprite.hit = True
-            b.kill()
+                b.kill()
 
+        
+        
         #check if aliens collide with any wall
         if pg.sprite.groupcollide(self.aliens.aliens,self.bounds.left_wall,False,False) or pg.sprite.groupcollide(self.aliens.aliens,self.bounds.right_wall,False,False):
             self.aliens.alien_down()
@@ -142,6 +145,10 @@ class Game():
                 self.UI.lives -= 1
                 if self.player.sprite.lives < 0:
                     return True
+            if ab.clr == "ufo":
+                if (pg.sprite.collide_rect(ab,self.bounds.left_wall.sprite) or pg.sprite.collide_rect(ab,self.bounds.right_wall.sprite)):
+                    ab.speed[0] *= -1
+                
         return False
     
     def specialAlienShoot(self):
