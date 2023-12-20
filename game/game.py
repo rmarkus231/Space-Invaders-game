@@ -1,7 +1,7 @@
 import pygame as pg
 import random
-from .enemy.aliens import Aliens
-from .world.bullet import Bullet
+from .enemy.aliens import Aliens, SpecialAlien
+from .world.bullet import Bullet, AdvBullet
 from .world.defense import Defense
 from .player.player import Player
 from .menu.game_over import Game_over
@@ -15,6 +15,7 @@ class Game():
     height = 0
     ready = False
     alien_cooldown = 1000 #in ms
+    special_alien_cooldown = 1500
     over = False
     startupCompleted = False
     
@@ -22,12 +23,15 @@ class Game():
         self.width = w
         self.height = h
         self.timer = timer
+        self.specialAlienActive = False
+        self.sReady = False
         
         #world elements
         p_sprite = Player((self.width/2 ,self.height))
         self.player = pg.sprite.GroupSingle(p_sprite)
         self.def_group = Defense(self.width,(10,self.height-50),10,100)
         self.aliens = Aliens(self.width,self.height,7,10,5,50,alien_speed= 1)
+        self.special = pg.sprite.GroupSingle(SpecialAlien(self.width,self.height))
         self.bounds = Bounds(w,h)
         self.UI = UI(w,h,self.player)
 
@@ -40,6 +44,7 @@ class Game():
         self.game_over = Game_over(self.width,self.height,self.player)
         
         self.time = pg.time.get_ticks()
+        self.stime = pg.time.get_ticks()
     
     
     def run(self,screen):
@@ -58,6 +63,18 @@ class Game():
             self.player.update()
             self.UI.update()
             
+            #actions for UFO
+            self.callSpecialAlien()
+            self.specialCharge()
+            self.special.update()
+            if self.specialAlienActive and self.special.sprite.inBounds():
+                self.special.draw(screen)
+                if self.sReady:
+                    self.specialAlienShoot()
+                    self.sReady = False
+                    self.stime = pg.time.get_ticks()
+                
+            
             self.over = self.collides()
             self.player_shoot()
             self.charge()
@@ -75,6 +92,16 @@ class Game():
             self.bounds.draw(screen)
         elif self.over:
             self.game_over.draw(screen)
+    
+    def callSpecialAlien(self):
+        #self.aliens.special
+        ran = random.randint(1,100)
+        if ran == 1:
+            print("special alien activated")
+            self.special.sprite.activate()
+            ttl = random.randint(10000,250000)
+            self.special.sprite.setTTL(ttl)
+            self.specialAlienActive = True
     
     def collides(self): #this function returns true of game is over
         #actually used for more than collision, just general game state checking
@@ -109,6 +136,11 @@ class Game():
                     return True
         return False
     
+    def specialAlienShoot(self):
+        playerpos = (self.player.sprite.rect.x*1/5,self.player.sprite.rect.y*1/5)
+        file = "./graphics/lil_bullet.png"
+        self.alien_lasers.add(AdvBullet(self.special.sprite.rect.center,self.height,False,speed=playerpos, img = file))
+
     def alien_shoot(self):
         if self.aliens.aliens:
             a = random.choice(self.aliens.aliens.sprites())
@@ -120,6 +152,12 @@ class Game():
             time = pg.time.get_ticks()
             if time -self.time > self.alien_cooldown:
                 self.ready = True
+
+    def specialCharge(self):
+        if not self.sReady:
+            time = pg.time.get_ticks()
+            if time -self.stime > self.special_alien_cooldown:
+                self.sReady = True
 
     def player_shoot(self):
         k = pg.key.get_pressed()

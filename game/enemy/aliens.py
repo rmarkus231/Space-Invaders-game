@@ -68,3 +68,81 @@ class Alien(pg.sprite.Sprite):
             self.rect.y += abs(speed)
         else:
             self.rect.x += speed
+
+class SpecialAlien(pg.sprite.Sprite):
+    def __init__(self,w,h):
+        super().__init__()
+        self.width = w
+        self.height = h
+        self.speed = 8
+        
+        #0 = hide
+        #1 = up right
+        #2 = up left
+        #3 = fly
+        #4 = go down
+        self.state = 0
+        
+        file = "./graphics/ufo.png"
+        self.image = pg.image.load(file).convert_alpha()
+        self.rect = self.image.get_rect( topleft = (8,-43)) #spawns out of screen space
+        self.retreat = [8,self.width-8]
+        
+        self.worthList = [100, 50, 50, 100, 150, 100, 100, 50, 300, 100, 100, 100, 50, 150, 100, 50]
+        self.worth = 0
+    
+    
+    def update(self):
+        if self.state == 3:
+            print("flying")
+            self.rect.x += abs(self.speed)
+            self.Hide()
+        elif self.state in [1,2]:
+            print("leaving")
+            self.goUp()
+        elif self.state == 0:
+            print("hiding")
+            self.standStill()
+        elif self.state == 4:
+            print("coming down")
+            self.goDown()
+        
+    def increment(self):
+        self.worth += 1
+        if self.worth > (len(self.worthList)-1):
+            self.worth = 0
+    
+    def inBounds(self):
+        if self.rect.x > 0 and self.rect.y > 0:
+            return True
+        else:
+            return False
+    
+    def standStill(self):
+        pass
+    
+    def goDown(self):
+        self.rect.y += 1
+        if self.rect.y == 8:
+            self.state = 3
+    
+    def goUp(self):
+        self.rect.y -= 1
+        if self.rect.y == -43:
+            self.state = 0
+    
+    def changeDirection(self):
+        self.speed *= -1
+    
+    def Hide(self):
+        if (self.ttl - pg.time.get_ticks()) < 0:
+            if self.rect.x == self.retreat[0]:
+                self.state = 1
+            elif self.rect.x == self.retreat[0]:
+                self.state = 2
+
+    def activate(self):
+        self.state = 4
+    
+    def setTTL(self,arg): #time to live, in ms
+        self.ttl = pg.time.get_ticks() + arg
